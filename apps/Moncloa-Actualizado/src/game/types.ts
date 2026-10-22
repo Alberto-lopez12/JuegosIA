@@ -172,7 +172,7 @@ export interface AnimatronicFaceCrop {
 
 export const ANIMATRONIC_FACE_CROPS: Record<AnimatronicId, AnimatronicFaceCrop> = {
   pedro: {
-    src: '/assets/aistudio/image_9ccead08.png',
+    src: './assets/aistudio/image_9ccead08.png',
     fx: 0.11,
     fy: 0.0,
     fw: 0.76,
@@ -183,7 +183,7 @@ export const ANIMATRONIC_FACE_CROPS: Record<AnimatronicId, AnimatronicFaceCrop> 
     objectPosition: '50% 42%',
   },
   rajoy: {
-    src: '/assets/aistudio/image_ef2723c2.png',
+    src: './assets/aistudio/image_ef2723c2.png',
     fx: 0.24,
     fy: 0.0,
     fw: 0.60,
@@ -194,7 +194,7 @@ export const ANIMATRONIC_FACE_CROPS: Record<AnimatronicId, AnimatronicFaceCrop> 
     objectPosition: '54% 38%',
   },
   montero: {
-    src: '/assets/aistudio/image_716b4c50.png',
+    src: './assets/aistudio/image_716b4c50.png',
     fx: 0.35,
     fy: 0.10,
     fw: 0.30,
@@ -205,7 +205,7 @@ export const ANIMATRONIC_FACE_CROPS: Record<AnimatronicId, AnimatronicFaceCrop> 
     objectPosition: '50% 30%',
   },
   abascal: {
-    src: '/assets/aistudio/image_67abad10.png',
+    src: './assets/aistudio/image_67abad10.png',
     fx: 0.37,
     fy: 0.14,
     fw: 0.30,
@@ -236,7 +236,7 @@ export const ANIMATRONIC_DOSSIERS: AnimatronicDossier[] = [
     name: 'Pedro-Freddy',
     alias: 'El Presidente Titular',
     fnafCounterpart: 'Freddy Fazbear',
-    portraitUrl: '/assets/aistudio/image_9ccead08.png',
+    portraitUrl: './assets/aistudio/image_9ccead08.png',
     wing: 'Ala Este (CAM 1A → 1B → 7 → 6 → 4A → 4B)',
     accentColor: '#dc2626',
     signatureItem: 'Chistera Presidencial y Micrófono de Rueda de Prensa',
@@ -250,7 +250,7 @@ export const ANIMATRONIC_DOSSIERS: AnimatronicDossier[] = [
     name: 'Rajoy-Bonnie',
     alias: 'El Guitarrista de Pontevedra',
     fnafCounterpart: 'Bonnie the Bunny',
-    portraitUrl: '/assets/aistudio/image_ef2723c2.png',
+    portraitUrl: './assets/aistudio/image_ef2723c2.png',
     wing: 'Ala Oeste (CAM 1A → 1B → 5 → 3 → 2A → 2B → Puerta Izq.)',
     accentColor: '#3b82f6',
     signatureItem: 'Gafas Metálicas, Pajarita Roja y Guitarra Eléctrica B.O.E.',
@@ -264,7 +264,7 @@ export const ANIMATRONIC_DOSSIERS: AnimatronicDossier[] = [
     name: 'Montero-Chica',
     alias: 'La Portavoz con Cupcake',
     fnafCounterpart: 'Chica the Chicken',
-    portraitUrl: '/assets/aistudio/image_716b4c50.png',
+    portraitUrl: './assets/aistudio/image_716b4c50.png',
     wing: 'Ala Este (CAM 1A → 1B → 7 → 6 → 4A → 4B → Puerta Der.)',
     accentColor: '#a855f7',
     signatureItem: 'Babero "¡A Legislar!" y Mr. Cupcake con Megáfono',
@@ -278,7 +278,7 @@ export const ANIMATRONIC_DOSSIERS: AnimatronicDossier[] = [
     name: 'Abascal-Foxy',
     alias: 'El Corsario de la Cala 1C',
     fnafCounterpart: 'Foxy the Pirate Fox',
-    portraitUrl: '/assets/aistudio/image_67abad10.png',
+    portraitUrl: './assets/aistudio/image_67abad10.png',
     wing: 'Cala 1C → Sprint por Pasillo Oeste (CAM 2A) → Puerta Izq.',
     accentColor: '#16a34a',
     signatureItem: 'Parche Pirata, Casaca Verde y Garfio de Acero',
