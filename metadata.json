@@ -1,0 +1,6 @@
+{
+  "name": "Five Nights in Moncloa",
+  "description": "Recreación 1 a 1 de Five Nights at Freddy's ambientada en el Palacio de la Moncloa con Pedro Sánchez (Freddy), Mariano Rajoy (Bonnie), Irene Montero (Chica) y Santiago Abascal (Foxy).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
