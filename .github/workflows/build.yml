@@ -1,21 +1,35 @@
-name: Build Windows EXE
+name: Compilar Juego a EXE
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      game_folder:
+        description: 'Nombre de la carpeta del juego (dentro de apps/)'
+        required: true
+        default: 'moncloa'
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install --legacy-peer-deps
-      - run: npm run electron:build
-      - uses: actions/upload-artifact@v4
+
+      - name: Instalar dependencias
+        working-directory: ./apps/${{ inputs.game_folder }}
+        run: npm install --legacy-peer-deps
+
+      - name: Compilar ejecutable .EXE
+        working-directory: ./apps/${{ inputs.game_folder }}
+        run: npm run electron:build
+
+      - name: Subir archivo EXE
+        uses: actions/upload-artifact@v4
         with:
-          name: FiveNightsInMoncloa-EXE
-          path: release/*.exe
+          name: ${{ inputs.game_folder }}-EXE
+          path: apps/${{ inputs.game_folder }}/release/*.exe
