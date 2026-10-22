@@ -58,11 +58,14 @@ export default function App() {
   const [muted, setMuted] = useState<boolean>(false);
   const [callMuted, setCallMuted] = useState<boolean>(false);
   const [callLineIndex, setCallLineIndex] = useState<number>(0);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   // Canvas & camera panning refs
   const officeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const panTargetRef = useRef<number>(0); // -1 (left) to +1 (right)
   const panCurrentRef = useRef<number>(0);
+  const mouseNormXRef = useRef<number>(0); // -1 (left edge) to +1 (right edge)
+  const mouseActiveRef = useRef<boolean>(false);
   const doorAnimRef = useRef<{ left: number; right: number }>({ left: 0, right: 0 });
   const hitboxesRef = useRef<OfficeHitboxes | null>(null);
   const keysHeldRef = useRef<Set<string>>(new Set());
@@ -73,6 +76,27 @@ export default function App() {
   useEffect(() => {
     document.body.dataset.state = screenState;
   }, [screenState]);
+
+  // Track Fullscreen state changes
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const handleToggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Ignore if blocked by iframe permissions
+    }
+  }, []);
 
   const syncHudFromSim = useCallback((nextSim: NightSimulationState) => {
     simRef.current = nextSim;
@@ -246,14 +270,30 @@ export default function App() {
       if (screenState === 'playing') {
         // Keyboard panning support (ArrowLeft / ArrowRight)
         if (keysHeldRef.current.has('ArrowLeft')) {
-          panTargetRef.current = Math.max(-1, panTargetRef.current - dt * 1.8);
+          panTargetRef.current = Math.max(-1, panTargetRef.current - dt * 2.2);
+          mouseActiveRef.current = false;
         }
         if (keysHeldRef.current.has('ArrowRight')) {
-          panTargetRef.current = Math.min(1, panTargetRef.current + dt * 1.8);
+          panTargetRef.current = Math.min(1, panTargetRef.current + dt * 2.2);
+          mouseActiveRef.current = false;
+        }
+
+        // FNAF 1 edge-scroll assist when cursor is held near either side
+        if (!simRef.current.monitorOpen && mouseActiveRef.current) {
+          const mx = mouseNormXRef.current;
+          if (Math.abs(mx) > 0.2) {
+            const dir = Math.sign(mx);
+            const speed = ((Math.abs(mx) - 0.2) / 0.8) * 2.4;
+            panTargetRef.current = Math.max(
+              -1,
+              Math.min(1, panTargetRef.current + dir * speed * dt)
+            );
+          }
         }
 
         // Smooth camera damping
-        panCurrentRef.current += (panTargetRef.current - panCurrentRef.current) * Math.min(1, dt * 8);
+        panCurrentRef.current +=
+          (panTargetRef.current - panCurrentRef.current) * Math.min(1, dt * 12);
 
         // Step simulation
         const prevSim = simRef.current;
@@ -339,11 +379,36 @@ export default function App() {
     };
   }, [screenState, processAudioCues]);
 
+  // Global mousemove listener so hovering over right/left HUD buttons never stops camera panning
+  useEffect(() => {
+    const onWindowMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth <= 0) return;
+      const normX = (e.clientX / window.innerWidth) * 2 - 1; // -1 to +1
+      mouseNormXRef.current = Math.max(-1, Math.min(1, normX));
+      mouseActiveRef.current = true;
+
+      if (screenState === 'playing' && !simRef.current.monitorOpen) {
+        // Reaching 62% toward either screen edge pans 100% to that doorway (-1 or +1)
+        const target = Math.max(-1, Math.min(1, normX / 0.62));
+        panTargetRef.current = target;
+      }
+    };
+
+    window.addEventListener('mousemove', onWindowMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onWindowMouseMove);
+  }, [screenState]);
+
   // Unified Keyboard Shortcuts & Focus-Loss Hygiene
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       keysHeldRef.current.add(e.key);
+
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        handleToggleFullscreen();
+        return;
+      }
 
       if (screenState === 'title') {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -447,6 +512,7 @@ export default function App() {
     customAI,
     runSnapshot,
     handleStartNight,
+    handleToggleFullscreen,
     handleToggleLeftDoor,
     handleToggleRightDoor,
     handleToggleLeftLight,
@@ -454,16 +520,6 @@ export default function App() {
     handleToggleMonitor,
     handleSelectCamera,
   ]);
-
-  // Mouse move panning and direct Canvas 3D button clicks inside the Security Office
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (screenState !== 'playing' || hudState.monitorOpen) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const normX = ((e.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1; // -1 to +1
-    if (Math.abs(normX) > 0.25) {
-      panTargetRef.current = Math.max(-1, Math.min(1, normX));
-    }
-  };
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (screenState !== 'playing' || hudState.monitorOpen) return;
@@ -514,7 +570,6 @@ export default function App() {
         <canvas
           ref={officeCanvasRef}
           data-testid="office-canvas"
-          onMouseMove={handleCanvasMouseMove}
           onClick={handleCanvasClick}
           className="w-full h-full block cursor-crosshair"
         />
@@ -526,6 +581,8 @@ export default function App() {
           <TitleScreen
             selectedNight={selectedNight}
             customAI={customAI}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={handleToggleFullscreen}
             onStartGame={handleStartNight}
             onUpdateCustomAI={setCustomAI}
           />
@@ -579,11 +636,34 @@ export default function App() {
               </div>
             </div>
 
-            {/* Compact Top-Right Utility Controls (Mute [M], Pause [P], Restart [R]) */}
+            {/* Compact Top-Right Utility Controls (Fullscreen [F], Mute [M], Pause [P], Restart [R]) */}
             <div className="flex items-center gap-1.5 pointer-events-auto">
               <button
                 type="button"
                 tabIndex={-1}
+                title={isFullscreen ? 'Salir de Pantalla Completa [F]' : 'Pantalla Completa [F]'}
+                aria-label={
+                  isFullscreen ? 'Salir de Pantalla Completa [F]' : 'Pantalla Completa [F]'
+                }
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  handleToggleFullscreen();
+                }}
+                className="w-10 h-10 flex items-center justify-center bg-slate-950/90 hover:bg-slate-800 border border-slate-700 rounded text-slate-200 cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                  {isFullscreen ? (
+                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+                  ) : (
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                  )}
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                tabIndex={-1}
+                title={muted ? 'Activar Audio [M]' : 'Silenciar Audio [M]'}
                 aria-label={muted ? 'Activar Audio [M]' : 'Silenciar Audio [M]'}
                 onClick={(e) => {
                   e.currentTarget.blur();
@@ -607,6 +687,7 @@ export default function App() {
               <button
                 type="button"
                 tabIndex={-1}
+                title="Pausar Partida [P]"
                 aria-label="Pausar Partida [P]"
                 onClick={(e) => {
                   e.currentTarget.blur();
@@ -622,6 +703,7 @@ export default function App() {
               <button
                 type="button"
                 tabIndex={-1}
+                title="Reiniciar Noche [R]"
                 aria-label="Reiniciar Noche [R]"
                 onClick={(e) => {
                   e.currentTarget.blur();
@@ -804,6 +886,8 @@ export default function App() {
           nightNumber={selectedNight}
           hourLabel={hourDisplay}
           powerPercent={powerPercent}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={handleToggleFullscreen}
           onResume={() => setScreenState('playing')}
           onRestart={() => handleStartNight(selectedNight)}
           onReturnTitle={() => setScreenState('title')}

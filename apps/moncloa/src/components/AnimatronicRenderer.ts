@@ -671,16 +671,16 @@ export function drawOfficeScene(
   ctx.save();
   ctx.clearRect(0, 0, width, height);
 
-  // Virtual panoramic width is 1.48x the viewport width
-  const worldW = Math.round(width * 1.48);
+  // Virtual panoramic width is 1.5x the viewport width
+  const worldW = Math.round(width * 1.5);
   const maxOffset = (worldW - width) / 2;
   const panOffsetX = -panNormalized * maxOffset;
+  const baseCenterOffset = -(worldW - width) / 2;
 
   ctx.save();
-  ctx.translate(worldW / 2 - width / 2 + panOffsetX - (worldW - width) / 2, 0);
+  ctx.translate(baseCenterOffset + panOffsetX, 0);
 
   const isOutage = state.powerOutage;
-  const ambientLum = isOutage ? 0.08 : 1.0;
 
   // 1. BACK WALL & PERSPECTIVE ROOM GEOMETRY
   const wallGrad = ctx.createLinearGradient(0, 0, 0, height);
@@ -721,8 +721,8 @@ export function drawOfficeScene(
   ctx.strokeStyle = isOutage ? '#0f172a' : '#334155';
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.moveTo(worldW * 0.15, height * 0.06);
-  ctx.lineTo(worldW * 0.85, height * 0.06);
+  ctx.moveTo(worldW * 0.12, height * 0.06);
+  ctx.lineTo(worldW * 0.88, height * 0.06);
   ctx.stroke();
 
   if (!isOutage) {
@@ -742,9 +742,10 @@ export function drawOfficeScene(
   }
 
   // 2. LEFT DOORWAY & LEFT WINDOW (West Wing Access)
-  const leftDoorX = worldW * 0.075;
+  // Positioned so when panned full left (panNormalized = -1), the doorway sits cleanly beside the left switch housing
+  const doorW = worldW * 0.125;
+  const leftDoorX = worldW * 0.095;
   const doorY = height * 0.14;
-  const doorW = worldW * 0.13;
   const doorH = floorY - doorY;
 
   // Hallway interior behind Left Door
@@ -754,7 +755,7 @@ export function drawOfficeScene(
 
   // If Left Hallway Light is ON and Rajoy-Bonnie is at LEFT_DOOR, draw him looming in the doorway!
   if (leftHallLit && state.rajoyLocation === 'LEFT_DOOR') {
-    // Dramatic red-amber warning backlight in corridor
+    // Dramatic warning backlight in corridor
     const scareGrad = ctx.createRadialGradient(
       leftDoorX + doorW * 0.5,
       doorY + doorH * 0.45,
@@ -817,10 +818,10 @@ export function drawOfficeScene(
   ctx.strokeRect(leftDoorX, doorY, doorW, doorH);
 
   // LEFT WINDOW (Between Left Door and Center Desk)
-  const leftWinX = leftDoorX + doorW + worldW * 0.035;
-  const winY = height * 0.22;
-  const winW = worldW * 0.095;
+  const winW = worldW * 0.09;
   const winH = height * 0.34;
+  const leftWinX = leftDoorX + doorW + worldW * 0.025;
+  const winY = height * 0.22;
 
   ctx.fillStyle = leftHallLit ? '#475569' : '#04070d';
   ctx.fillRect(leftWinX, winY, winW, winH);
@@ -836,8 +837,9 @@ export function drawOfficeScene(
   ctx.strokeRect(leftWinX, winY, winW, winH);
 
   // 3. RIGHT WINDOW & RIGHT DOORWAY (East Wing Access)
-  const rightDoorX = worldW * 0.795;
-  const rightWinX = rightDoorX - worldW * 0.035 - winW;
+  // Symmetric to Left Doorway so when panned full right (panNormalized = +1), the entire Right Doorway is visible beside the right switch housing
+  const rightDoorX = worldW - leftDoorX - doorW; // worldW * 0.78
+  const rightWinX = rightDoorX - worldW * 0.025 - winW;
   const rightHallLit = state.rightLightOn && !isOutage && Math.sin(time * 41) > -0.6;
 
   // Right Window
@@ -867,6 +869,18 @@ export function drawOfficeScene(
   // Right Doorway interior
   ctx.fillStyle = rightHallLit ? '#334155' : '#030508';
   ctx.fillRect(rightDoorX, doorY, doorW, doorH);
+
+  // If Right Hallway Light is ON and Pedro-Freddy or Montero-Chica is at RIGHT_DOOR, show doorway presence
+  if (rightHallLit && state.pedroLocation === 'RIGHT_DOOR') {
+    drawAnimatronicCharacter(
+      ctx,
+      'pedro',
+      rightDoorX + doorW * 0.48,
+      doorY + doorH * 0.52,
+      Math.min(width, height) * 0.0022,
+      { pose: 'window', time }
+    );
+  }
 
   // Animated Right Hydraulic Blast Door
   if (doorAnim.right > 0.01) {

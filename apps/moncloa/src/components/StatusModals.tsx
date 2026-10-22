@@ -5,6 +5,8 @@ interface PauseModalProps {
   nightNumber: number;
   hourLabel: string;
   powerPercent: number;
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
   onResume: () => void;
   onRestart: () => void;
   onReturnTitle: () => void;
@@ -14,6 +16,8 @@ export const PauseModal: React.FC<PauseModalProps> = ({
   nightNumber,
   hourLabel,
   powerPercent,
+  isFullscreen,
+  onToggleFullscreen,
   onResume,
   onRestart,
   onReturnTitle,
@@ -61,6 +65,13 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             className="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-display text-lg uppercase tracking-wider rounded cursor-pointer whitespace-nowrap shrink-0"
           >
             REANUDAR GUARDIA [P / ESC]
+          </button>
+          <button
+            type="button"
+            onClick={onToggleFullscreen}
+            className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-display text-base uppercase tracking-wider rounded border border-slate-600 cursor-pointer whitespace-nowrap shrink-0"
+          >
+            {isFullscreen ? 'SALIR DE PANTALLA COMPLETA [F]' : 'PANTALLA COMPLETA [F]'}
           </button>
           <button
             type="button"
