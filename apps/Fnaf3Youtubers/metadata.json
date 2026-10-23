@@ -1,0 +1,6 @@
+{
+  "name": "Five Nights at Andorra 3",
+  "description": "Réplica 1:1 de Five Nights at Freddy's 3 donde juegas como un Inspector de Hacienda sobreviviendo a youtubers andorranos como AuronPlay (Springtrap), El Rubius Chepudo, Cristinini, Chiqui-Ibai, IShowSpeed y AriGameplays (3,99$).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
