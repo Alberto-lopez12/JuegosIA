@@ -545,7 +545,7 @@ export function useSoundEffects() {
             triggerBuffer(decoded);
           })
           .catch(() => {
-            const fallbackAudio = new Audio('/assets/aistudio/fnaf-3-start-sound_15f70752.mp3');
+            const fallbackAudio = new Audio('./assets/aistudio/fnaf-3-start-sound_15f70752.mp3');
             fallbackAudio.volume = 1.0;
             fallbackAudio.play().catch(() => {});
           });

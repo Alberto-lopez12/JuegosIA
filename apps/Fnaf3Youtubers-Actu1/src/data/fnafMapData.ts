@@ -35,13 +35,13 @@ export type CharacterId =
   | 'KNEKRO';
 
 export const STREAMER_HEAD_IMAGES: Record<CharacterId, string> = {
-  AURONPLAY: '/assets/aistudio/image_a1fd6d5f.png',
-  KNEKRO: '/assets/aistudio/image_70c3a5a9.png',
-  RUBIUS_CHEPUDO: '/assets/aistudio/image_d33c5ca6.png',
-  CRISTININI: '/assets/aistudio/image_bd655330.png',
-  CHIQUI_IBAI: '/assets/aistudio/image_d6650af4.png',
-  ISHOWSPEED: '/assets/aistudio/image_8d1bc70f.png',
-  ARIGAMEPLAYS: '/assets/aistudio/image_faace05e.png',
+  AURONPLAY: './assets/aistudio/image_a1fd6d5f.png',
+  KNEKRO: './assets/aistudio/image_70c3a5a9.png',
+  RUBIUS_CHEPUDO: './assets/aistudio/image_d33c5ca6.png',
+  CRISTININI: './assets/aistudio/image_bd655330.png',
+  CHIQUI_IBAI: './assets/aistudio/image_d6650af4.png',
+  ISHOWSPEED: './assets/aistudio/image_8d1bc70f.png',
+  ARIGAMEPLAYS: './assets/aistudio/image_faace05e.png',
 };
 
 /**
