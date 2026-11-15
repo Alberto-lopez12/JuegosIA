@@ -1,0 +1,6 @@
+{
+  "name": "Still Nights: Facility 87",
+  "description": "Un fangame de supervivencia y terror inspirado en Five Nights at Freddy's con los Still Animatronics y The Blob, oficina detallada con conducto central, sistema de cámaras y 8 noches.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
